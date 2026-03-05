@@ -187,7 +187,7 @@ function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, 
     M3 = sqrt(My3^2+Mz3^2)/2;
     M4 = sqrt(My4^2+Mz4^2)/2;
     M5 = sqrt(My5^2+Mz5^2)/2;
-    MD = sqrt(MyD^2+MzD^2)/2;
+    MD = (596*(l45)+(596-515)*(l23+l34))/2;   % hand done new calculation for max moment with updated minimum shaft diamater
 
    
     
@@ -238,5 +238,6 @@ end
 
 
 %% Bearings
+
 
 
