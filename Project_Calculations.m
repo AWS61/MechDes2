@@ -139,9 +139,9 @@ pullstress = pulleyshaft(Tensile_Force);
 function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, F_in, Tensile_force, r_Drum)
     
     % shaft lengths and 
-    l23 = 41*10^-3;   
+    l23 = 51*10^-3;   
     l34 = 40*10^-3;
-    l45 = 51*10^-3;
+    l45 = 41*10^-3;
     lcrank = 5*10^-3;
     d4 = 15*10^-3;
     d3 = 15*10^-3;
@@ -238,4 +238,5 @@ end
 
 
 %% Bearings
+
 
