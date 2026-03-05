@@ -139,11 +139,11 @@ pullstress = pulleyshaft(Tensile_Force);
 function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, F_in, Tensile_force, r_Drum)
     
     % shaft lengths and 
-    l23 = 40*10^-3;   
-    l34 = 30*10^-3;
-    l45 = 40*10^-3;
+    l23 = 41*10^-3;   
+    l34 = 40*10^-3;
+    l45 = 51*10^-3;
     lcrank = 5*10^-3;
-    d4 = 12*10^-3;
+    d4 = 15*10^-3;
     d3 = 15*10^-3;
     l = l23 + l34 + l45; % total length
     
@@ -170,9 +170,9 @@ function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, 
 
     % forces on gear shaft 3
     R3by = (-ft54*l45+Tensile_force*(l34+l45))/l;
-    R3oy = ft54+R3by-Tensile_force;
+    R3oy = -ft54-R3by+Tensile_force
     R3bz = (fr54*l45)/l;
-    R3oz = fr54-R3bz;
+    R3oz = fr54-R3bz
     T_out = Tensile_force*r_Drum;
 
     %moments in shaft 3
@@ -182,18 +182,18 @@ function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, 
     MzD = R3bz*l23;
 
 
-    % Moments at each gear or drum
-    M2 = sqrt(My2^2+Mz2^2);
-    M3 = sqrt(My3^2+Mz3^2);
-    M4 = sqrt(My4^2+Mz4^2);
-    M5 = sqrt(My5^2+Mz5^2);
-    MD = sqrt(MyD^2+MzD^2);
+    % max alternating at each gear or drum
+    M2 = sqrt(My2^2+Mz2^2)/2;
+    M3 = sqrt(My3^2+Mz3^2)/2;
+    M4 = sqrt(My4^2+Mz4^2)/2;
+    M5 = sqrt(My5^2+Mz5^2)/2;
+    MD = sqrt(MyD^2+MzD^2)/2;
 
    
     
     % prelinary stress concentrations for 
-    gearKt = 4;
-    gearKts = 4;
+    gearKt = 1.4;
+    gearKts = 1.25;
 
     maxstress2 = (sqrt((32*gearKt*M2/(pi*d4^3))^2+3*(16*gearKts*T_in/(pi*d4^3))))*10^-6;
     maxstress3 = (sqrt((32*gearKt*M3/(pi*d3^3))^2+3*(16*gearKts*T3/(pi*d3^3))))*10^-6;
@@ -214,23 +214,28 @@ function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, 
     disp(['von Mises stress at gear 4 = ', string(maxstress4), '[MPa]'])
     disp(['von Mises stress at gear 5 = ', string(maxstress5), '[MPa]'])
     disp(['with a shaft length of ', num2str(l)])
+    
 end
 
     %% pulley shaft analysis
 
-function [pulstress] = pulleyshaft(t)
-    t = 1000/(.985^3);  %pulley tension in N
+function [Min_pul_d] = pulleyshaft(t);
+      %pulley tension in N
     pulKt = 1.0; % pulley stess concentration
     pullen = 1; % length of pulley shaft in m
-    puld = .0254*1.3; % pulley shaft diameter
+    %puld = .0254*1.4; % pulley shaft diameter
     
     % maximum pulley stress
-    pulstress = (32*pulKt*t*(pullen/2)/(pi*puld^3))*10^-6;
+    syms puld
+    Pulley_stress = 310/2 == (32*pulKt*t*(pullen/2)/(pi*puld^3))*10^-6;
+
+    Min_d = solve(Pulley_stress, puld, Real=true);
+    Min_pul_d = double(Min_d);
     
-    disp(["The maximum pulley shaft stress is ",num2str(pulstress), " MPa"])
+    disp(["minimum pulley shaft diameter is ",num2str(Min_pul_d*39.37), " [in]"])
 end
 
 
 
-
 %% Bearings
+
