@@ -134,29 +134,29 @@ Facewidth = Kv_milled*Wt/(Sy*Module*Y)
 %% Support Shafts and Pullies
 
 pullstress = pulleyshaft(Tensile_Force);
-[maxstress3, maxstress4] = gearshaft(Ft54, Fr54, Ft23, Fr23, T3, T_in, F_in, Tensile_Force, r_Drum);
+[maxstress3, maxstress4] = gearshaft(Ft54, Fr54, Ft23, Fr32, T3, T_in, F_in, Tensile_Force, r_Drum, T5);
 
-function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, F_in, Tensile_force, r_Drum)
+function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, F_in, Tensile_force, r_Drum, T5)
     
     % shaft lengths and 
     l23 = 51*10^-3;   
     l34 = 40*10^-3;
     l45 = 41*10^-3;
     lcrank = 5*10^-3;
-    d4 = 15*10^-3;
+    d4 = 12*10^-3;
     d3 = 15*10^-3;
     l = l23 + l34 + l45; % total length
     
     % Reaction forces on gear shafts 2
-    Roy = (ft54*(l23+l34)-ft23*l23)/(l);   
+    Roy = (ft54*(l23+l34)-ft23*l23)/(l)  
     Rby = ft23+Roy-ft54;
-    Roz = (fr54*(l23+l34)-fr23*l23)/(l);
+    Roz = (fr54*(l23+l34)-fr23*l23)/(l)
     Rbz = fr23+Roz-fr54;
     
     %Reaction forces on gear shaft 1
-    R2oy = (ft23*l23-F_in*lcrank)/(l);
+    R2oy = (ft23*l23-F_in*lcrank)/(l)
     R2by = R2oy - ft54 + Tensile_force;
-    R2bz = fr23*(l45+l34)/l;
+    R2bz = fr23*(l45+l34)/l
     R2oz = fr23-R2bz;
     % moments for gear shaft 1
     My2 = R2oy*(l23+l34);
@@ -169,25 +169,25 @@ function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, 
     Mz3 = Rbz*l23;
 
     % forces on gear shaft 3
-    R3by = (-ft54*l45+Tensile_force*(l34+l45))/l;
-    R3oy = -ft54-R3by+Tensile_force
-    R3bz = (fr54*l45)/l;
+    R3by = (Tensile_force*(l+.03)-ft54*l45)/l
+    R3oy = ft54+R3by-Tensile_force
+    R3bz = (fr54*l45)/l
     R3oz = fr54-R3bz
     T_out = Tensile_force*r_Drum;
 
     %moments in shaft 3
-    My5 = R3oy*l45;
-    Mz5 = R3oz*l45;
+    My5 = R3oy*l45
+    Mz5 = R3oz*l45
     MyD = R3by*l23;
     MzD = R3bz*l23;
 
 
     % max alternating at each gear or drum
-    M2 = sqrt(My2^2+Mz2^2)/2;
-    M3 = sqrt(My3^2+Mz3^2)/2;
-    M4 = sqrt(My4^2+Mz4^2)/2;
-    M5 = sqrt(My5^2+Mz5^2)/2;
-    MD = (596*(l45)+(596-515)*(l23+l34))/2;   % hand done new calculation for max moment with updated minimum shaft diamater
+    M2 = sqrt(My2^2+Mz2^2)/2
+    M3 = sqrt(My3^2+Mz3^2)/2
+    M4 = sqrt(My4^2+Mz4^2)/2
+    M5 = sqrt(My5^2+Mz5^2)/2
+    MD = (R3oy*(l45)+(R3oy-ft54)*(l23+l34))-9.2
 
    
     
@@ -198,12 +198,12 @@ function [maxstress3, maxstress4] = gearshaft(ft54, fr54, ft23, fr23, T3, T_in, 
     maxstress2 = (sqrt((32*gearKt*M2/(pi*d4^3))^2+3*(16*gearKts*T_in/(pi*d4^3))))*10^-6;
     maxstress3 = (sqrt((32*gearKt*M3/(pi*d3^3))^2+3*(16*gearKts*T3/(pi*d3^3))))*10^-6;
     maxstress4 = (sqrt((32*gearKt*M4/(pi*d4^3))^2+3*(16*gearKts*T3/(pi*d4^3))))*10^-6;
-    maxstress5 = (sqrt((32*gearKt*M5/(pi*d4^3))^2+3*(16*gearKts*T_out/(pi*d4^3))))*10^-6;
-    
+    maxstress5 = (sqrt((32*gearKt*M5/(pi*d4^3))^2+3*(16*gearKts*T5/(pi*d4^3))))*10^-6;
+    maxstressRBshaft3 = (sqrt((32*MD/(pi*d4^3))^2+3*(16*T_out/(pi*d4^3))))*10^-6
     % solving for minimum shaft diamater
     syms d
     assume(d >= 0)
-    maxstressD = (sqrt((32*gearKt*MD/(pi*d^3))^2+3*(16*gearKts*T_out/(pi*d^3))))*10^-6 == 310/2;
+    maxstressD = (sqrt((32*MD/(pi*d^3))^2+3*(16*T_out/(pi*d^3))))*10^-6 == 310/2;
     Min_d = solve(maxstressD, d, Real=true);
     dmin = double(Min_d);
 
@@ -219,13 +219,13 @@ end
 
     %% pulley shaft analysis
 
-function [Min_pul_d] = pulleyshaft(t);
+function [Min_pul_d] = pulleyshaft(t)
       %pulley tension in N
     pulKt = 1.0; % pulley stess concentration
     pullen = 1; % length of pulley shaft in m
     %puld = .0254*1.4; % pulley shaft diameter
     
-    % maximum pulley stress
+    % minimum pulley diameter
     syms puld
     Pulley_stress = 310/2 == (32*pulKt*t*(pullen/2)/(pi*puld^3))*10^-6;
 
@@ -235,9 +235,8 @@ function [Min_pul_d] = pulleyshaft(t);
     disp(["minimum pulley shaft diameter is ",num2str(Min_pul_d*39.37), " [in]"])
 end
 
-
-
 %% Bearings
+
 
 
 
